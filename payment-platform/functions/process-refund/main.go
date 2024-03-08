@@ -15,7 +15,7 @@ import (
 	"net/http"
 )
 
-const BankSimulatorURL = "https://5df0-2806-230-4014-c6fc-b4fe-6664-88a1-592e.ngrok-free.app/process-refund"
+const BankSimulatorURL = "https://a596-2806-230-4014-c6fc-b4fe-6664-88a1-592e.ngrok-free.app/process-refund"
 
 func HandleRefund(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	var request functions.RefundRequest
@@ -33,6 +33,13 @@ func HandleRefund(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 			StatusCode: http.StatusInternalServerError,
 			Body:       "Error calling bank simulator",
 		}, err
+	}
+
+	if response.Status == "Failed" {
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       response.Message,
+		}, nil
 	}
 
 	if err := updateRefundInDynamo(request); err != nil {

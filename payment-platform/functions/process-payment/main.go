@@ -30,7 +30,7 @@ type PaymentResponse struct {
 }
 
 // URL del simulador de banco con ngrok
-const BankSimulatorURL = "https://5df0-2806-230-4014-c6fc-b4fe-6664-88a1-592e.ngrok-free.app/process-payment"
+const BankSimulatorURL = "https://a596-2806-230-4014-c6fc-b4fe-6664-88a1-592e.ngrok-free.app/process-payment"
 
 func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	var request PaymentRequest
@@ -51,11 +51,22 @@ func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 		}, nil
 	}
 
-	//Guarda en DynamoDB
-	if err := savePaymentInDynamo(request); err != nil {
-		log.Printf("Error saving payment details: %s", err)
+	if response.Status == "Failed" {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       response.Message,
+		}, nil
 	}
 
+	if response.Status == "Success" {
+		if err := savePaymentInDynamo(request, response.Status); err != nil {
+			log.Printf("Error saving payment details: %s", err)
+		}
+		return events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Body:       response.Message,
+		}, nil
+	}
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
 		Body:       response.Message,
@@ -83,7 +94,7 @@ func callBankSimulatorPay(request PaymentRequest) (PaymentResponse, error) {
 	return paymentResponse, nil
 }
 
-func savePaymentInDynamo(request PaymentRequest) error {
+func savePaymentInDynamo(request PaymentRequest, responseStatus string) error {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1"),
 	})
@@ -92,14 +103,28 @@ func savePaymentInDynamo(request PaymentRequest) error {
 	}
 
 	svc := dynamodb.New(sess)
-	item, err := dynamodbattribute.MarshalMap(request)
+
+	// Crea un mapa para guardar tanto la solicitud como el estado de la respuesta
+	itemRequest, err := dynamodbattribute.MarshalMap(request)
 	if err != nil {
 		return err
 	}
 
+	// Agrega el estado de la respuesta al mapa
+	itemResponse := map[string]*dynamodb.AttributeValue{
+		"status": {
+			S: aws.String(responseStatus),
+		},
+	}
+
+	// Combina los mapas de la solicitud y el estado de la respuesta
+	for key, value := range itemResponse {
+		itemRequest[key] = value
+	}
+
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("PaymentsTable"),
-		Item:      item,
+		Item:      itemRequest,
 	}
 
 	_, err = svc.PutItem(input)

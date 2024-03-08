@@ -19,7 +19,6 @@ type PaymentDetailsResponse struct {
 	CardNumber    string  `json:"cardNumber"`
 	Status        string  `json:"status"`
 	MerchantID    string  `json:"merchantId"`
-	// Incluye otros campos según sea necesario
 }
 
 func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
