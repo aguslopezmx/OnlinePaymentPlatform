@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DEUNA - Online Payment Platform - Lambda - 2024-02-09T19:03:07.908405+00:00
+Mappings:
+  Lambda:
+    MemorySizes:
+      dev: 128
+      prod: 128
+      qa: 128
+    RetentionLogDays:
+      dev: 7
+      prod: 30
+      qa: 7
+Outputs:
+  PaymentPlatformGetTokenArn:
+    Description: Payment Platform Get Token Arn
+    Export:
+      Name: PaymentPlatformGetTokenArn
+    Value: !GetAtt 'PaymentPlatformGetToken.Arn'
+  PaymentPlatformProcessPaymentArn:
+    Description: Payment Platform Process Payment Arn
+    Export:
+      Name: PaymentPlatformProcessPaymentArn
+    Value: !GetAtt 'PaymentPlatformProcessPayment.Arn'
+  PaymentPlatformProcessRefundArn:
+    Description: Payment Platform Process Refund Arn
+    Export:
+      Name: PaymentPlatformProcessRefundArn
+    Value: !GetAtt 'PaymentPlatformProcessRefund.Arn'
+  PaymentPlatformGetPaymentDetailsArn:
+    Description: Payment Platform Get Payment Details Arn
+    Export:
+      Name: PaymentPlatformGetPaymentDetailsArn
+    Value: !GetAtt 'PaymentPlatformGetPaymentDetails.Arn'
+  BankSimulatorProcessPaymentArn:
+    Description: Bank Simulator Process Payment Arn
+    Export:
+      Name: BankSimulatorProcessPaymentArn
+    Value: !GetAtt 'BankSimulatorProcessPayment.Arn'
+  BankSimulatorRefundPaymentArn:
+    Description: Bank Simulator Refund Payment Arn
+    Export:
+      Name: BankSimulatorRefundPaymentArn
+    Value: !GetAtt 'BankSimulatorRefundPayment.Arn'
+Parameters:
+  Environment:
+    AllowedValues:
+      - dev
+      - qa
+      - prod
+    Description: Deployment environment
+    Type: String
+Resources:
+  LambdaRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      Description: Role for Lambdas
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+      RoleName: payment-platform-lambda-role
+    Type: AWS::IAM::Role
+  PaymentPlatformGetToken:
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: !ImportValue 'ArtifactsBucket'
+        S3Key: !Sub
+          - ${Prefix}.zip
+          - Prefix: payment-platform-get-token
+      Description: DEUNA - Online Payment Platform - Get Token
+      FunctionName: payment-platform-get-token
+      Handler: bootstrap.HandleRequest
+      MemorySize: !FindInMap
+        - Lambda
+        - MemorySizes
+        - !Ref 'Environment'
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: provided.al2023
+      Timeout: 60
+      TracingConfig:
+        Mode: Active
+    Type: AWS::Lambda::Function
+  PaymentPlatformProcessPayment:
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: !ImportValue 'ArtifactsBucket'
+        S3Key: !Sub
+          - ${Prefix}.zip
+          - Prefix: payment-platform-process-payment
+      Description: DEUNA - Online Payment Platform - Process Payment
+      FunctionName: payment-platform-process-payment
+      Handler: bootstrap.HandleRequest
+      MemorySize: !FindInMap
+        - Lambda
+        - MemorySizes
+        - !Ref 'Environment'
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: provided.al2023
+      Timeout: 60
+      TracingConfig:
+        Mode: Active
+    Type: AWS::Lambda::Function
+  PaymentPlatformProcessRefund:
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: !ImportValue 'ArtifactsBucket'
+        S3Key: !Sub
+          - ${Prefix}.zip
+          - Prefix: payment-platform-process-refund
+      Description: DEUNA - Online Payment Platform - Refund Payment
+      FunctionName: payment-platform-process-refund
+      Handler: bootstrap.HandleRequest
+      MemorySize: !FindInMap
+        - Lambda
+        - MemorySizes
+        - !Ref 'Environment'
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: provided.al2023
+      Timeout: 60
+      TracingConfig:
+        Mode: Active
+    Type: AWS::Lambda::Function
+  PaymentPlatformGetPaymentDetails:
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: !ImportValue 'ArtifactsBucket'
+        S3Key: !Sub
+          - ${Prefix}.zip
+          - Prefix: payment-platform-get-payment-details
+      Description: DEUNA - Online Payment Platform - Get Payment Details
+      FunctionName: payment-platform-get-payment-details
+      Handler: bootstrap.HandleRequest
+      MemorySize: !FindInMap
+        - Lambda
+        - MemorySizes
+        - !Ref 'Environment'
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: provided.al2023
+      Timeout: 60
+      TracingConfig:
+        Mode: Active
+    Type: AWS::Lambda::Function
+  BankSimulatorProcessPayment:
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: !ImportValue 'ArtifactsBucket'
+        S3Key: !Sub
+          - ${Prefix}.zip
+          - Prefix: bank-simulator-process-payment
+      Description: DEUNA - Bank Simulator - Process Payment
+      FunctionName: bank-simulator-process-payment
+      Handler: bootstrap.HandleRequest
+      MemorySize: !FindInMap
+        - Lambda
+        - MemorySizes
+        - !Ref 'Environment'
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: provided.al2023
+      Timeout: 60
+      TracingConfig:
+        Mode: Active
+    Type: AWS::Lambda::Function
+  BankSimulatorRefundPayment:
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: !ImportValue 'ArtifactsBucket'
+        S3Key: !Sub
+          - ${Prefix}.zip
+          - Prefix: bank-simulator-process-refund
+      Description: DEUNA - Bank Simulator - Refund Payment
+      FunctionName: bank-simulator-process-refund
+      Handler: bootstrap.HandleRequest
+      MemorySize: !FindInMap
+        - Lambda
+        - MemorySizes
+        - !Ref 'Environment'
+      Role: !GetAtt 'LambdaRole.Arn'
+      Runtime: provided.al2023
+      Timeout: 60
+      TracingConfig:
+        Mode: Active
+    Type: AWS::Lambda::Function

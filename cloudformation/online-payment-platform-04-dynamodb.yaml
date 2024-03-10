@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DEUNA - Online Payment Platform - DynamoDB - 2024-02-09T19:03:07.908405+00:00
+Parameters:
+  Environment:
+    AllowedValues:
+      - dev
+      - qa
+      - prod
+    Description: Deployment environment
+    Type: String
+Resources:
+  TokensTable:
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: transactionId
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      KeySchema:
+        - AttributeName: transactionId
+          KeyType: HASH
+      TableName: Tokens
+    Type: AWS::DynamoDB::Table
+  PaymentsTable:
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: transactionId
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      KeySchema:
+        - AttributeName: transactionId
+          KeyType: HASH
+      TableName: Payments
+    Type: AWS::DynamoDB::Table

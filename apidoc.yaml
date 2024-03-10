@@ -1,0 +1,387 @@
+openapi: 3.0.3
+info:
+  title: OnlinePaymentPlatform 1.0
+  description: |-
+    With the rapid expansion of e-commerce, there is a pressing need for an efficient payment gateway. This project aims to develop an online payment platform, which will be an API-based application enabling e-commerce businesses to securely and seamlessly process transactions.
+  version: 1.0.0
+servers:
+  - url: 'https://ipulvtzgt4.execute-api.us-east-1.amazonaws.com/dev'
+    description: Development environment
+tags:
+  - name: Bank Simulator
+    description: Endpoints for the bank simulator used by the payment gateway
+  - name: Payment Gateway
+    description: Endpoints for the payment gateway
+paths:
+  /bank-simulator-payment:
+    post:
+      summary: Process a payment
+      description: |-
+        This endpoint processes a payment using the bank simulator. It accepts a payment request and returns a payment response.
+      operationId: processPayment
+      tags:
+        - Bank Simulator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /bank-simulator-refund:
+    post:
+      summary: Process a refund
+      description: |-
+        This endpoint processes a refund using the bank simulator. It accepts a refund request and returns a refund response.
+      operationId: processRefund
+      tags:
+        - Bank Simulator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /get-token:
+    post:
+      summary: Get a token
+      description: |-
+        This endpoint retrieves a token from the bank simulator. It accepts a merchant Id, merchant APIKey, customer Id, and returns a token. This token is used to identify the processing payment.
+      operationId: getToken
+      tags:
+        - Payment Gateway
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                merchantId:
+                  type: string
+                  description: The merchant ID
+                apiKey:
+                  type: string
+                  description: The merchant API key
+                customerId:
+                  type: string
+                  description: The customer ID
+              required:
+                - merchantId
+                - apiKey
+                - customerId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: The token
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /process-payments:
+    post:
+      summary: Process a payment
+      description: |-
+        This endpoint processes a payment using the payment gateway. It accepts a payment request and returns a payment response.
+      operationId: processPayment
+      tags:
+        - Payment Gateway
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /process-refunds:
+    post:
+      summary: Process a refund
+      description: |-
+        This endpoint processes a refund using the payment gateway. It accepts a refund request and returns a refund response.
+      operationId: processRefund
+      tags:
+        - Payment Gateway
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /get-payment-details:
+    post:
+      summary: Get payment details
+      description: |-
+        This endpoint retrieves payment details using the payment gateway. It accepts a transaction ID and returns payment details.
+      operationId: getPaymentDetails
+      tags:
+        - Payment Gateway
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transactionId:
+                  type: string
+                  description: The transaction ID
+                merchantId:
+                  type: string
+                  description: The merchant ID
+                apiKey:
+                  type: string
+                  description: The merchant API key
+                customerId:
+                  type: string
+                  description: The customer ID
+              required:
+                - transactionId
+                - merchantId
+                - apiKey
+                - customerId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: string
+                    description: The transaction ID
+                  merchantId:
+                    type: string
+                    description: The merchant ID
+                  customerId:
+                    type: string
+                    description: The customer ID
+                  amount:
+                      type: number
+                      format: float
+                      description: The amount to be paid
+                  status:
+                    type: string
+                    description: The payment status
+                  cardNumber:
+                    type: string
+                    description: The card number
+                  message:
+                    type: string
+                    description: The payment message
+                required:
+                  - transactionId
+                  - merchantId
+                  - apiKey
+                  - customerId
+                  - amount
+                  - status
+                  - cardNumber
+                  - message
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        PaymentRequest:
+          type: object
+          properties:
+            amount:
+              type: number
+              format: float
+              description: The amount to be paid
+            number:
+              type: string
+              description: The card number
+            expiryMonth:
+              type: integer
+              format: int32
+              description: The expiry month
+            expiryYear:
+              type: integer
+              format: int32
+              description: The expiry year
+            cvv:
+              type: string
+              description: The card verification value
+            merchantId:
+              type: string
+              description: The merchant ID
+            apiKey:
+              type: string
+              description: The merchant API key
+            customerId:
+              type: string
+              description: The customer ID
+          required:
+            - amount
+            - number
+            - expiryMonth
+            - expiryYear
+            - cvv
+            - merchantId
+            - apiKey
+            - customerId
+        PaymentResponse:
+          type: object
+          properties:
+            transactionId:
+              type: string
+              description: The transaction ID
+            status:
+              type: string
+              description: The payment status
+            message:
+              type: string
+              description: The payment message
+          required:
+            - transactionId
+            - status
+            - message
+        Error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              description: The error code
+            message:
+              type: string
+              description: The error message
+          required:
+            - code
+            - message
+        RefundRequest:
+          type: object
+          properties:
+            transactionId:
+              type: string
+              description: The transaction ID
+            merchantId:
+              type: string
+              description: The merchant ID
+            apiKey:
+              type: string
+              description: The merchant API key
+            customerId:
+              type: string
+              description: The customer ID
+          required:
+              - transactionId
+              - merchantId
+              - apiKey
+              - customerId
+        RefundResponse:
+            type: object
+            properties:
+              transactionId:
+                type: string
+                description: The transaction ID
+              status:
+                type: string
+                description: The payment status
+              message:
+                type: string
+                description: The payment message
+            required:
+                - transactionId
+                - status
+                - message

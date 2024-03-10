@@ -1,0 +1,250 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DEUNA - Online Payment Platform - API Gateway - 2024-02-09T19:03:07.908405+00:00
+Parameters:
+  Environment:
+    AllowedValues:
+      - dev
+      - qa
+      - prod
+    Description: Deployment environment
+    Type: String
+Resources:
+  APIGatewayPaymentPlatform:
+    Properties:
+      Description: REST API for Online Payment Platform
+      Name: payment-platform
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+    Type: AWS::ApiGateway::RestApi
+  ResourceGetToken:
+    Properties:
+      ParentId: !GetAtt 'APIGatewayPaymentPlatform.RootResourceId'
+      PathPart: get-token
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Resource
+  MethodGetToken:
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :lambda:path/2015-03-31/functions/
+            - !ImportValue 'PaymentPlatformGetTokenArn'
+            - /invocations
+      ResourceId: !Ref 'ResourceGetToken'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Method
+  ResourceProcessPayment:
+    Properties:
+      ParentId: !GetAtt 'APIGatewayPaymentPlatform.RootResourceId'
+      PathPart: process-payments
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Resource
+  MethodProcessPayment:
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :lambda:path/2015-03-31/functions/
+            - !ImportValue 'PaymentPlatformProcessPaymentArn'
+            - /invocations
+      ResourceId: !Ref 'ResourceProcessPayment'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Method
+  ResourceProcessRefund:
+    Properties:
+      ParentId: !GetAtt 'APIGatewayPaymentPlatform.RootResourceId'
+      PathPart: process-refund
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Resource
+  MethodProcessRefund:
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :lambda:path/2015-03-31/functions/
+            - !ImportValue 'PaymentPlatformProcessRefundArn'
+            - /invocations
+      ResourceId: !Ref 'ResourceProcessRefund'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Method
+  ResourceGetPaymentDetails:
+    Properties:
+      ParentId: !GetAtt 'APIGatewayPaymentPlatform.RootResourceId'
+      PathPart: get-payment-details
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Resource
+  MethodGetPaymentDetails:
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :lambda:path/2015-03-31/functions/
+            - !ImportValue 'PaymentPlatformGetPaymentDetailsArn'
+            - /invocations
+      ResourceId: !Ref 'ResourceGetPaymentDetails'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Method
+  ResourceBankProcessPayment:
+    Properties:
+      ParentId: !GetAtt 'APIGatewayPaymentPlatform.RootResourceId'
+      PathPart: bank-simulator-payment
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Resource
+  MethodBankProcessPayment:
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :lambda:path/2015-03-31/functions/
+            - !ImportValue 'BankSimulatorProcessPaymentArn'
+            - /invocations
+      ResourceId: !Ref 'ResourceBankProcessPayment'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Method
+  ResourceBankProcessRefund:
+    Properties:
+      ParentId: !GetAtt 'APIGatewayPaymentPlatform.RootResourceId'
+      PathPart: bank-simulator-refund
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Resource
+  MethodBankProcessRefund:
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :lambda:path/2015-03-31/functions/
+            - !ImportValue 'BankSimulatorRefundPaymentArn'
+            - /invocations
+      ResourceId: !Ref 'ResourceBankProcessRefund'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Method
+
+
+  APIGatewayPaymentPlatformDeployment:
+    DependsOn:
+      - MethodGetToken
+      - MethodProcessPayment
+      - MethodProcessRefund
+      - MethodGetPaymentDetails
+      - MethodBankProcessPayment
+      - MethodBankProcessRefund
+    Properties:
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::ApiGateway::Deployment
+  APIGatewayPaymentPlatformStage:
+    DependsOn:
+      - APIGatewayPaymentPlatformDeployment
+    Properties:
+      DeploymentId: !Ref 'APIGatewayPaymentPlatformDeployment'
+      RestApiId: !Ref 'APIGatewayPaymentPlatform'
+      StageName: !Ref 'Environment'
+    Type: AWS::ApiGateway::Stage
+  LambdaPermissionForRestApiGetToken:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue 'PaymentPlatformGetTokenArn'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestId}/*
+        - ApiGatewayRestId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::Lambda::Permission
+  LambdaPermissionForRestApiProcessPayment:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue 'PaymentPlatformProcessPaymentArn'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestId}/*
+        - ApiGatewayRestId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::Lambda::Permission
+  LambdaPermissionForRestApiProcessRefund:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue 'PaymentPlatformProcessRefundArn'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestId}/*
+        - ApiGatewayRestId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::Lambda::Permission
+  LambdaPermissionForRestApiGetPaymentDetails:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue 'PaymentPlatformGetPaymentDetailsArn'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestId}/*
+        - ApiGatewayRestId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::Lambda::Permission
+  LambdaPermissionForRestApiBankProcessPayment:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue 'BankSimulatorProcessPaymentArn'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestId}/*
+        - ApiGatewayRestId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::Lambda::Permission
+  LambdaPermissionForRestApiBankProcessRefund:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !ImportValue 'BankSimulatorRefundPaymentArn'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestId}/*
+        - ApiGatewayRestId: !Ref 'APIGatewayPaymentPlatform'
+    Type: AWS::Lambda::Permission
+  BankPaymentURLParameter:
+    Properties:
+      Name: /onlinePaymentPlatform/bankPaymentURL
+      Type: String
+      Value: !Sub
+        - https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${StageName}/bank-simulator-payment
+        - ApiId: !Ref 'APIGatewayPaymentPlatform'
+          StageName: !Ref 'Environment'
+    Type: AWS::SSM::Parameter
+  BankRefundURLParameter:
+    Properties:
+      Name: /onlinePaymentPlatform/bankRefundURL
+      Type: String
+      Value: !Sub
+        - https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${StageName}/bank-simulator-refund
+        - ApiId: !Ref 'APIGatewayPaymentPlatform'
+          StageName: !Ref 'Environment'
+    Type: AWS::SSM::Parameter
