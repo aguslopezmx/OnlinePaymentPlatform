@@ -19,7 +19,7 @@ func HandleRequest(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 	var request helpers.PaymentDetailsRequest
 
 	// Validate json schema
-	err := helpers.ValidateRefundRequest([]byte(event.Body))
+	err := helpers.ValidateGetPaymentDetailsRequest([]byte(event.Body))
 	log.Println(err)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
