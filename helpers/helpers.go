@@ -271,7 +271,7 @@ func GetSuccessResponseBody(successResponse any) string {
 	return string(responseBody)
 }
 
-// GetParameterByPath is a request to get a parameter by path
+// GetParameter is a request to get a parameter by path
 func GetParameter(parameterName string) (string, error) {
 	// Get the bank simulator URL from parameters store
 	sess, err := session.NewSession(&aws.Config{

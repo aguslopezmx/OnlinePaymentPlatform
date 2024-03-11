@@ -10,7 +10,7 @@ With the rapid expansion of e-commerce, there is a pressing need for an efficien
 - Built With:
   - Golang as development language
   - AWS as Cloud Platform (using Lambda, APIGateway, DynamoDB and Cloudwatch)
-
+  - This project uses <a href="https://github.com/ulid/spec" target=on_blank>ULID</a>  as a unique identifier for transactions.
 - Setup Instructions:
   - Install Golang and set up the development environment.
   - Navigate to the project directory and run `go mod tidy` to install the project dependencies.
